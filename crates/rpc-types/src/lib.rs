@@ -23,6 +23,7 @@ pub mod receipt;
 pub mod safe_head;
 pub mod sync;
 pub mod transaction;
+pub mod block_info;
 
 pub use receipt::{OpTransactionReceipt, OptimismTransactionReceiptFields};
 pub use transaction::{OptimismTransactionFields, Transaction};

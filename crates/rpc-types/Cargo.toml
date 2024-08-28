@@ -12,17 +12,20 @@ repository.workspace = true
 exclude.workspace = true
 
 [dependencies]
-op-alloy-consensus = { workspace = true, features = ["serde"] }
+# op-alloy
+op-alloy-consensus = { workspace = true, default-feature = false }
 
-alloy-primitives = { workspace = true, features = ["rlp", "serde", "std"] }
+# alloy
+alloy-primitives = { workspace = true, features = ["rlp", "std"], default-feature = false }
 alloy-rpc-types-eth.workspace = true
 alloy-network.workspace = true
-alloy-serde.workspace = true
 
-serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
+# `serde` feature dependencies
+alloy-serde = { workspace = true, optional = true }
+serde = { workspace = true, features = ["derive"], optional = true }
+serde_json = { workspace = true, optional = true }
 
-# arbitrary
+# `arbitrary` feature dependencies
 arbitrary = { workspace = true, features = ["derive"], optional = true }
 
 [dev-dependencies]
@@ -34,6 +37,14 @@ arbitrary = { workspace = true, features = ["derive"] }
 rand.workspace = true
 
 [features]
+default = ["serde"]
+serde = [
+  "dep:serde",
+  "dep:serde_json",
+  "dep:alloy-serde",
+  "alloy-primitives/serde",
+  "op-alloy-consensus/serde",
+]
 arbitrary = [
     "dep:arbitrary",
     "alloy-primitives/arbitrary",
