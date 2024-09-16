@@ -14,12 +14,10 @@ pub struct OptimismPayloadAttributes {
     #[cfg_attr(feature = "serde", serde(flatten))]
     pub payload_attributes: PayloadAttributes,
     /// Transactions is a field for rollups: the transactions list is forced into the block
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    pub transactions: Option<Vec<Bytes>>,
+    pub transactions: Vec<Bytes>,
     /// If true, the no transactions are taken out of the tx-pool, only transactions from the above
     /// Transactions list will be included.
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
-    pub no_tx_pool: Option<bool>,
+    pub no_tx_pool: bool,
     /// If set, this sets the exact gas limit the block produced with.
     #[cfg_attr(
         feature = "serde",
@@ -113,6 +111,38 @@ pub struct OptimismExecutionPayloadEnvelopeV4 {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use alloy_primitives::{address, b256};
+
+    #[test]
+    #[cfg(feature = "serde")]
+    fn test_optimism_payload_attributes() {
+        let raw_str = r#"
+        {
+            "timestamp": "0x1235",
+            "suggestedFeeRecipient": "0xd883010d00846765746888676f312e32312e3085",
+            "prevRandao": "0x44d0fa5f2f73a938ebb96a2a21679eb8dea3e7b7dd8fd9f35aa756dda8bf0a8a",
+            "transactions": [],
+            "noTxPool": false,
+            "gasLimit": "0x2ffbd2"
+        }"#;
+
+        let expected = OptimismPayloadAttributes {
+            payload_attributes: PayloadAttributes {
+                timestamp: 0x1235,
+                suggested_fee_recipient: address!("d883010d00846765746888676f312e32312e3085"),
+                withdrawals: None,
+                prev_randao: b256!(
+                    "44d0fa5f2f73a938ebb96a2a21679eb8dea3e7b7dd8fd9f35aa756dda8bf0a8a"
+                ),
+                parent_beacon_block_root: None,
+            },
+            transactions: vec![],
+            no_tx_pool: false,
+            gas_limit: Some(0x2ffbd2),
+        };
+        let attributes: OptimismPayloadAttributes = serde_json::from_str(raw_str).unwrap();
+        assert_eq!(attributes, expected);
+    }
 
     #[test]
     #[cfg(feature = "serde")]
